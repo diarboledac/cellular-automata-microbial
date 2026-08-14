@@ -78,30 +78,34 @@ class MicrobialCA:
         nuevo_grid = grid_old.copy()
 
         s_min = max(1e-6, self.params.sustrato_minimo)
-        filas, cols = grid_old.shape
+        s = self.sustrato
 
-        for i in range(filas):
-            for j in range(cols):
-                estado = grid_old[i, j]
-                vecinos = int(vecinos_total[i, j])
-                s_local = float(self.sustrato[i, j])
-                factor_s = 1.0 if s_local >= s_min else max(0.0, s_local / s_min)
-                # Escalar la tabla por prob_div (0.5 reproduce valores base)
-                p_tabla = PROB_POR_VECINOS.get(vecinos, 0.5)
-                escala = prob_div / 0.5
-                p_base = p_tabla * escala
-                p_efectiva = p_base * factor_s
+        # factor de sustrato: 1 si hay suficiente, s/s_min si no
+        factor_s = np.where(s >= s_min, 1.0, np.maximum(0.0, s / s_min))
 
-                if estado == 0:
-                    if 0 < vecinos <= n0 and p_efectiva > 0 and self.rng.random() < p_efectiva:
-                        nuevo_grid[i, j] = 2  # coloniza como crecimiento
-                elif estado == 1:
-                    # inhibicion espacial simple: siempre pasa a crecimiento
-                    nuevo_grid[i, j] = 2
-                elif estado == 2:
-                    if vecinos <= n0 and p_efectiva > 0 and self.rng.random() < p_efectiva:
-                        nuevo_grid[i, j] = 1  # activa division
-                # sin muerte explicita
+        # Probabilidad base por vecinos (tabla escalable por prob_div)
+        claves = np.array([0, 1, 2, 3, 4], dtype=np.int16)
+        valores = np.array([PROB_POR_VECINOS[k] for k in range(5)], dtype=np.float64)
+        indice = np.minimum(vecinos_total, 4)
+        p_tabla = np.where(vecinos_total > 4, 0.5, valores[indice])
+
+        escala = prob_div / 0.5
+        p_efectiva = p_tabla * escala * factor_s
+
+        # estado 1: siempre pasa a crecimiento (inhibicion espacial simple)
+        nuevo_grid[grid_old == 1] = 2
+
+        # Máscaras de transición (mutuamente excluyentes por estado)
+        coloniza = (grid_old == 0) & (vecinos_total > 0) & (vecinos_total <= n0) & (p_efectiva > 0)
+        divide = (grid_old == 2) & (vecinos_total <= n0) & (p_efectiva > 0)
+
+        # Consumir RNG en orden fila-mayor igual que el loop original
+        idx = np.flatnonzero(coloniza | divide)
+        if idx.size:
+            draws = self.rng.random(idx.size)
+            p_flat = p_efectiva.ravel()[idx]
+            ganan = idx[draws < p_flat]
+            nuevo_grid.ravel()[ganan] = np.where(grid_old.ravel()[ganan] == 0, 2, 1)
 
         self.grid = nuevo_grid
 
