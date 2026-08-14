@@ -88,7 +88,7 @@ class MicrobialCA:
                 factor_s = 1.0 if s_local >= s_min else max(0.0, s_local / s_min)
                 # Escalar la tabla por prob_div (0.5 reproduce valores base)
                 p_tabla = PROB_POR_VECINOS.get(vecinos, 0.5)
-                escala = prob_div / 0.5 if 0.5 else 1.0
+                escala = prob_div / 0.5
                 p_base = p_tabla * escala
                 p_efectiva = p_base * factor_s
 

@@ -1,5 +1,6 @@
 # Simulacion microbiana basada en automatas celulares
-# Autor: Mayerly Julissa Quiñones Quiñones (Trabajo-Maye)
+# Autor: Mayerly Julissa Quiñones Quiñones
+# Repositorio: cellular-automata-microbial
 # Universidad Nacional de Colombia - Sede Manizales, Facultad de Ciencias Exactas y Naturales
 
 Repositorio depurado para correr la simulacion interactiva y las rutinas batch. Se removieron documentos y pruebas temporales para dejar una base lista para demostraciones.
@@ -44,7 +45,7 @@ Selector interactivo para ver los diferentes experimentos sin reiniciar (base, N
 
 ## Estructura
 
-    Trabajo-Maye/
+    cellular-automata-microbial/
     - automata.py
     - main.py
     - parametros.py
