@@ -1,5 +1,5 @@
 # Simulacion microbiana basada en automatas celulares
-# Autor: Mayerly Julissa Quiñones Quiñones
+# Autor: Diego Alejandro Arboleda Cuero
 # Repositorio: cellular-automata-microbial
 # Universidad Nacional de Colombia - Sede Manizales, Facultad de Ciencias Exactas y Naturales
 
